@@ -62,6 +62,7 @@ func main() {
 
 	r.POST("/auth/validateRequest", func(c *gin.Context) {
 		tokenString := c.Request.Header.Get("Authorization")
+
 		tokenString = tokenString[7:] // remove Bearer from token string
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -70,6 +71,7 @@ func main() {
 			}
 			return hmacSampleSecret, nil
 		})
+
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
