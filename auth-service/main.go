@@ -3,7 +3,8 @@ package main
 import (
 	"auth-service/entities"
 	"auth-service/repositories"
-	"fmt"
+	"auth-service/usecases"
+	"auth-service/usecases/auth"
 	"net/http"
 	"time"
 
@@ -21,6 +22,10 @@ type ValidateRequestDTO struct {
 
 func main() {
 	repositories := repositories.New()
+
+	usecases := usecases.New(usecases.Options{
+		Repositories: repositories,
+	})
 
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
@@ -65,32 +70,21 @@ func main() {
 
 		tokenString = tokenString[7:] // remove Bearer from token string
 
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-			}
-			return hmacSampleSecret, nil
-		})
-
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-			return
-		}
-
 		var validateRequestDTO ValidateRequestDTO
 		if err := c.ShouldBindJSON(&validateRequestDTO); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-			return
-		}
+		error := usecases.Auth.ValidateRequest(auth.ValidateRequestDTO{
+			Token:  tokenString,
+			Action: validateRequestDTO.Action,
+			UserID: validateRequestDTO.UserID,
+			Role:   validateRequestDTO.Role,
+		})
 
-		if validateRequestDTO.Action == "listPersonDebts" && validateRequestDTO.Role != "master" && validateRequestDTO.UserID != int(claims["user_id"].(float64)) {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		if error != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": error.Error()})
 			return
 		}
 

@@ -21,7 +21,7 @@ func main() {
 		// remove Bearer from token
 		token = token[7:]
 
-		if token == "undefined" {
+		if token == "undefined" || token == "" {
 			c.JSON(401, gin.H{
 				"error": "unauthorized",
 			})
