@@ -6,7 +6,6 @@ import (
 	"debts-service/repositories"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 )
 
@@ -49,7 +48,6 @@ func (u *personUseCases) GetPersonDebtsByPersonID(id int, token string) (entitie
 	}
 
 	resp, err := http.DefaultClient.Do(request)
-	fmt.Println(resp)
 
 	if resp.StatusCode != 200 {
 		return entities.PersonDebts{}, errors.New("error validating request")
