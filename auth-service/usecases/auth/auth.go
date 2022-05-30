@@ -24,7 +24,7 @@ func (a *authUseCases) ValidateRequest(request ValidateRequestDTO) error {
 			Role:   request.Role,
 		})
 	} else if request.Action == "listPersonBelongings" {
-		return ValidateListPersonBelongingsRequest(ValidateListPersonBelongingsRequestDTO{
+		return a.ValidateListPersonBelongingsRequest(ValidateListPersonBelongingsRequestDTO{
 			UserID: request.UserID,
 			Token:  request.Token,
 			Role:   request.Role,

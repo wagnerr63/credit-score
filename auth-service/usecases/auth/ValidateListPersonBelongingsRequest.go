@@ -29,7 +29,7 @@ func (u *authUseCases) ValidateListPersonBelongingsRequest(data ValidateListPers
 		return errors.New("invalid token")
 	}
 
-	userById, _ := u.repositories.User.FindByID(claims["user_id"].(int))
+	userById, _ := u.repositories.User.FindByID(int(claims["user_id"].(float64)))
 	if userById.ID == 0 {
 		return errors.New("invalid user")
 	}
