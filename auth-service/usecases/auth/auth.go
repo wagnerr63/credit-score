@@ -23,6 +23,12 @@ func (a *authUseCases) ValidateRequest(request ValidateRequestDTO) error {
 			Token:  request.Token,
 			Role:   request.Role,
 		})
+	} else if request.Action == "listPersonBelongings" {
+		return ValidateListPersonBelongingsRequest(ValidateListPersonBelongingsRequestDTO{
+			UserID: request.UserID,
+			Token:  request.Token,
+			Role:   request.Role,
+		})
 	}
 
 	return errors.New("invalid action")

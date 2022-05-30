@@ -2,6 +2,7 @@ package auth
 
 type IAuthUseCases interface {
 	ValidateRequest(request ValidateRequestDTO) error
+	ValidateListPersonBelongingsRequest(request ValidateListPersonBelongingsRequestDTO) error
 }
 
 type ValidateRequestDTO struct {

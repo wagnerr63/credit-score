@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"score-service/repositories"
 	"score-service/usecases"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -13,10 +14,28 @@ func main() {
 		Repositories: repositories,
 	})
 
-	person, err := usecases.Person.FindByDocumentID("123456789")
-	if err != nil {
-		panic(err)
-	}
+	r := gin.Default()
 
-	fmt.Println(person)
+	r.GET("/person/:document_id/belongings", func(c *gin.Context) {
+		token := c.GetHeader("Authorization")
+		token = token[7:]
+
+		if token == "undefined" || token == "" {
+			c.JSON(401, gin.H{
+				"error": "unauthorized",
+			})
+			return
+		}
+
+		DocumentID := c.Param("document_id")
+		person, err := usecases.Person.FindByDocumentID(DocumentID, token)
+		if err != nil {
+			c.JSON(404, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(200, gin.H{"person": person})
+	})
+
+	r.Run(":8081")
 }

@@ -6,15 +6,13 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-type ValidateListPersonDebtsRequestDTO struct {
+type ValidateListPersonBelongingsRequestDTO struct {
 	UserID int    `json:"user_id"`
 	Token  string `json:"token"`
 	Role   string `json:"role"`
 }
 
-var hmacSampleSecret []byte
-
-func ValidateListPersonDebtsRequest(data ValidateListPersonDebtsRequestDTO) error {
+func (u *authUseCases) ValidateListPersonBelongingsRequest(data ValidateListPersonBelongingsRequestDTO) error {
 	token, err := jwt.Parse(data.Token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return errors.New("Unexpected signing method"), nil
@@ -31,9 +29,15 @@ func ValidateListPersonDebtsRequest(data ValidateListPersonDebtsRequestDTO) erro
 		return errors.New("invalid token")
 	}
 
-	if data.Role != "master" && data.UserID != int(claims["user_id"].(float64)) {
-		return errors.New("unauthorized")
+	userById, _ := u.repositories.User.FindByID(claims["user_id"].(int))
+	if userById.ID == 0 {
+		return errors.New("invalid user")
 	}
 
-	return nil
+	if userById.Role == "master" || userById.Role == "credit_institution" || userById.Role == "credit_analyst" {
+		return nil
+	}
+
+	return errors.New("unauthorized")
+
 }

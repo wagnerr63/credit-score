@@ -79,8 +79,6 @@ func main() {
 		error := usecases.Auth.ValidateRequest(auth.ValidateRequestDTO{
 			Token:  tokenString,
 			Action: validateRequestDTO.Action,
-			UserID: validateRequestDTO.UserID,
-			Role:   validateRequestDTO.Role,
 		})
 
 		if error != nil {
